@@ -1,0 +1,85 @@
+# Load-test scenarios for Splash (see README.md).
+# Durations are defaults; CLI --duration / --eps override target rate and steady length.
+
+defaults:
+  event_bytes: 1536
+  connections: 8
+  namespace: loadtest
+  warm_eps: 500
+  warm_seconds: 60
+  burst_multiplier: 2.0
+  burst_seconds: 45
+  observe_interval_s: 5.0
+  cooked_host: "127.0.0.1"
+  cooked_port: 39998
+  uncooked_host: "127.0.0.1"
+  uncooked_port: 39997
+  s2s_health_url: "http://127.0.0.1:8081/health"
+  classify_health_url: "http://127.0.0.1:8080/health"
+  # Optional ES verification (also via ELASTIC_HOST / ELASTIC_API_KEY env)
+  elastic_host: ""
+  elastic_api_key: ""
+
+scenarios:
+  S1:
+    name: hot_cooked
+    description: Known sourcetype/source — local classify, LS+ES ceiling
+    path: cooked
+    hot_fraction: 1.0
+    target_eps: 5000
+
+  S1_512:
+    name: hot_cooked_512b
+    description: Hot cooked event-size matrix — 512 B (CPU-heavy per GB)
+    path: cooked
+    hot_fraction: 1.0
+    target_eps: 5000
+    event_bytes: 512
+
+  S1_1536:
+    name: hot_cooked_1536b
+    description: Hot cooked event-size matrix — 1536 B (planning baseline)
+    path: cooked
+    hot_fraction: 1.0
+    target_eps: 5000
+    event_bytes: 1536
+
+  S1_4096:
+    name: hot_cooked_4096b
+    description: Hot cooked event-size matrix — 4096 B (byte-heavy)
+    path: cooked
+    hot_fraction: 1.0
+    target_eps: 5000
+    event_bytes: 4096
+
+  S1x2:
+    name: hot_cooked_2shard
+    description: Hot cooked across two shards (ports 39998+40008) — ~2× stable
+    path: cooked
+    hot_fraction: 1.0
+    target_eps: 10000
+    cooked_ports: "39998,40008"
+    s2s_health_urls: "http://127.0.0.1:8081/health,http://127.0.0.1:8091/health"
+    classify_health_url: "http://127.0.0.1:8080/health"
+    connections: 16
+
+  S2:
+    name: cold_cooked
+    description: Empty sourcetype/source — /classify/batch path
+    path: cooked
+    hot_fraction: 0.0
+    target_eps: 2500
+
+  S3:
+    name: mixed_90_10
+    description: 90% hot + 10% cold — realistic drag
+    path: cooked
+    hot_fraction: 0.9
+    target_eps: 5000
+
+  S4:
+    name: uncooked_hot
+    description: Plain TCP hot metadata — skip s2s-decode
+    path: uncooked
+    hot_fraction: 1.0
+    target_eps: 5000

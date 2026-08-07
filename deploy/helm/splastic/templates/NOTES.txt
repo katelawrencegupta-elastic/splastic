@@ -1,0 +1,33 @@
+1. Splash is installed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+
+2. Multi-writer capacity (post-Logstash):
+   - ~0.008 GB/s (~5k eps @ 1536 B) per pipeline replica
+   - pipeline.replicaCount={{ .Values.pipeline.replicaCount }}  ← set to suggested shards
+   - classify.replicaCount={{ .Values.classify.replicaCount }}  ← keep small (2–3); shared ensure only
+   - Formula: shards ≈ ceil(ceil(peak_GBps / 0.008) * 1.25)
+   - Packing: 1 writer pod per 8-vCPU / 16 GiB node
+   - See docs/runbooks/sharding.md
+
+3. Point Splunk cooked tcpout at the pipeline Service VIP (L4 TCP):
+
+     kubectl get svc {{ include "splash.fullname" . }}-pipeline -n {{ .Release.Namespace }}
+
+     server = <EXTERNAL-IP or hostname>:{{ .Values.pipeline.service.cookedPort }}
+
+   Uncooked (optional):
+
+     server = <same VIP>:{{ .Values.pipeline.service.uncookedPort }}
+
+   Prefer VIP-only Splunk config so scale-out does not churn forwarders.
+   Cloud NLB may sit in front of the Service or node ports; health-check :8081 /health.
+
+4. Persistence: pipeline StatefulSet spill PVC enabled={{ .Values.pipeline.persistence.enabled }}
+   size={{ .Values.pipeline.persistence.size }} (per-pod spill survives restart).
+
+5. Metrics (writer scrapes include shard="<pod-name>" label):
+   - classify: http://{{ include "splash.fullname" . }}-classify:{{ .Values.classify.service.port }}/metrics
+   - writer:   http://<pipeline-pod>:8081/metrics
+   - lag:      http://{{ include "splash.fullname" . }}-index-lag:{{ .Values.indexLagProbe.port }}/metrics (if enabled)
+
+6. Alerts: deploy/alerts/splash-alerts.yaml + splash-recording.yaml
+   Runbooks: docs/runbooks/sharding.md , docs/runbooks/compute-optimize.md

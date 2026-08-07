@@ -1,0 +1,91 @@
+# Capacity: ~0.008 GB/s/writer stack (S1 @ 5k eps, post-Logstash).
+# shards ≈ ceil(ceil(peak_GBps / floor) * 1.25)
+# Set pipeline.replicaCount = shards; classify.replicaCount stays 2–3 (shared).
+# Packing: 1 writer pod / 8-vCPU node. See docs/runbooks/sharding.md.
+#
+# CPU budgets:
+#   classify  requests 100m/256Mi  limits 1/512Mi
+#   writer    requests 500m/512Mi  limits 4/2Gi
+
+nameOverride: ""
+fullnameOverride: ""
+
+terminationGracePeriodSeconds: 40
+
+existingSecret: ""
+
+elastic:
+  host: ""
+  apiKey: ""
+  namespace: default
+  httpTimeoutS: "2.0"
+  ensureConcurrency: "8"
+
+classify:
+  replicaCount: 2
+  image: splash-classify:latest
+  imagePullPolicy: IfNotPresent
+  authToken: ""
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  service:
+    type: ClusterIP
+    port: 8080
+
+pipeline:
+  # Each replica is one writer pod (cooked + uncooked).
+  replicaCount: 2
+  writerImage: splash-s2s-decode:latest
+  imagePullPolicy: IfNotPresent
+  persistence:
+    enabled: true
+    size: 5Gi
+    accessMode: ReadWriteOnce
+    storageClassName: ""
+  resources:
+    writer:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: "4"
+        memory: 2Gi
+  service:
+    type: LoadBalancer
+    cookedPort: 39998
+    uncookedPort: 39997
+  upstreamQueueSize: "10000"
+  upstreamBatchSize: "1000"
+  upstreamFlushMs: "25"
+  bulkWorkers: "16"
+  # OS processes per pod (SO_REUSEPORT). 1 = legacy single-process.
+  writerProcesses: "4"
+  maxConnections: "256"
+  maxSessionBufferBytes: "33554432"
+  classifyUrl: ""
+
+dlqExporter:
+  enabled: false
+  image: splash-dlq-exporter:latest
+  port: 9102
+
+indexLagProbe:
+  enabled: true
+  image: splash-index-lag-probe:latest
+  port: 9103
+  intervalSeconds: "15"
+  s2sHealthUrls: ""
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+ingestBind: "0.0.0.0"

@@ -1,0 +1,16 @@
+[project]
+name = "splastic-writer"
+version = "0.2.0"
+requires-python = ">=3.12"
+dependencies = ["aiohttp==3.10.5", "orjson==3.11.9", "httpx==0.27.2"]
+
+[project.scripts]
+splastic-writer = "s2s.server:main"
+s2s-decode = "s2s.server:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["s2s*", "writer*"]

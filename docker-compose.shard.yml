@@ -1,0 +1,29 @@
+# Horizontal shard overlay for Splash (writer owns cooked + uncooked).
+#
+# Port map (default stride 10):
+#   SHARD_ID=0 → uncooked 39997, cooked 39998, classify 8080, s2s health 8081,
+#                prometheus 9090
+#   SHARD_ID=1 → uncooked 40007, cooked 40008, classify 8090, s2s health 8091,
+#                prometheus 9100
+#
+# Quick start:
+#   ./scripts/run-shard.sh 0 up --build -d
+#   ./scripts/run-shard.sh 1 up --build -d
+
+services:
+  classify:
+    container_name: !reset null
+    ports: !override
+      - "${INGEST_BIND:-127.0.0.1}:${CLASSIFY_HOST_PORT:-8080}:8080"
+  s2s-decode:
+    container_name: !reset null
+    ports: !override
+      - "${INGEST_BIND:-127.0.0.1}:${COOKED_HOST_PORT:-39998}:39998"
+      - "${INGEST_BIND:-127.0.0.1}:${UNCOOKED_HOST_PORT:-39997}:39997"
+      - "${INGEST_BIND:-127.0.0.1}:${S2S_HEALTH_HOST_PORT:-8081}:8081"
+  prometheus:
+    container_name: !reset null
+    environment:
+      SPLASH_SHARD_ID: "${SPLASH_SHARD_ID:-0}"
+    ports: !override
+      - "${INGEST_BIND:-127.0.0.1}:${PROMETHEUS_HOST_PORT:-9090}:9090"

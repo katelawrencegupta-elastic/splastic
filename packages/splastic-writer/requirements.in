@@ -1,0 +1,4 @@
+aiohttp==3.10.5
+orjson==3.11.9
+typing-extensions==4.16.0
+httpx==0.27.2

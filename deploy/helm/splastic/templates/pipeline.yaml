@@ -1,0 +1,167 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "splash.fullname" . }}-pipeline
+  labels:
+    {{- include "splash.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline
+spec:
+  serviceName: {{ include "splash.fullname" . }}-pipeline-headless
+  replicas: {{ .Values.pipeline.replicaCount }}
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: pipeline
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: pipeline
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds | int }}
+      containers:
+        - name: writer
+          image: {{ .Values.pipeline.writerImage | quote }}
+          imagePullPolicy: {{ .Values.pipeline.imagePullPolicy }}
+          ports:
+            - name: cooked
+              containerPort: 39998
+            - name: uncooked
+              containerPort: 39997
+            - name: health
+              containerPort: 8081
+          env:
+            - name: S2S_LISTEN_HOST
+              value: {{ .Values.ingestBind | quote }}
+            - name: S2S_LISTEN_PORT
+              value: "39998"
+            - name: UNCOOKED_LISTEN_HOST
+              value: {{ .Values.ingestBind | quote }}
+            - name: UNCOOKED_LISTEN_PORT
+              value: "39997"
+            - name: S2S_HEALTH_PORT
+              value: "8081"
+            - name: ELASTIC_HOST
+              value: {{ required "elastic.host is required" .Values.elastic.host | quote }}
+            - name: ELASTIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "splash.secretName" . }}
+                  key: elastic-api-key
+            - name: CLASSIFY_URL
+              value: {{ include "splash.classifyUrl" . | quote }}
+            - name: CLASSIFY_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "splash.secretName" . }}
+                  key: classify-auth-token
+            - name: DATA_STREAM_NAMESPACE
+              value: {{ .Values.elastic.namespace | quote }}
+            - name: S2S_UPSTREAM_QUEUE_SIZE
+              value: {{ .Values.pipeline.upstreamQueueSize | quote }}
+            - name: S2S_UPSTREAM_BATCH_SIZE
+              value: {{ .Values.pipeline.upstreamBatchSize | default "1000" | quote }}
+            - name: S2S_UPSTREAM_FLUSH_MS
+              value: {{ .Values.pipeline.upstreamFlushMs | default "25" | quote }}
+            - name: WRITER_BULK_WORKERS
+              value: {{ .Values.pipeline.bulkWorkers | default "16" | quote }}
+            - name: WRITER_PROCESSES
+              value: {{ .Values.pipeline.writerProcesses | default "4" | quote }}
+            - name: S2S_MAX_CONNECTIONS
+              value: {{ .Values.pipeline.maxConnections | quote }}
+            - name: S2S_MAX_SESSION_BUFFER_BYTES
+              value: {{ .Values.pipeline.maxSessionBufferBytes | quote }}
+            - name: WRITER_SPILL_DIR
+              value: /var/lib/splastic/spill
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SPLASH_SHARD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: writer-data
+              mountPath: /var/lib/splastic/spill
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: health
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.pipeline.resources.writer | nindent 12 }}
+      volumes:
+        {{- if not .Values.pipeline.persistence.enabled }}
+        - name: writer-data
+          emptyDir: {}
+        {{- end }}
+  {{- if .Values.pipeline.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: writer-data
+      spec:
+        accessModes:
+          - {{ .Values.pipeline.persistence.accessMode | quote }}
+        resources:
+          requests:
+            storage: {{ .Values.pipeline.persistence.size | quote }}
+        {{- with .Values.pipeline.persistence.storageClassName }}
+        storageClassName: {{ . | quote }}
+        {{- end }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "splash.fullname" . }}-pipeline-headless
+  labels:
+    {{- include "splash.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: pipeline
+  ports:
+    - name: cooked
+      port: {{ .Values.pipeline.service.cookedPort }}
+      targetPort: cooked
+    - name: uncooked
+      port: {{ .Values.pipeline.service.uncookedPort }}
+      targetPort: uncooked
+    - name: s2s-health
+      port: 8081
+      targetPort: health
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "splash.fullname" . }}-pipeline
+  labels:
+    {{- include "splash.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pipeline
+spec:
+  type: {{ .Values.pipeline.service.type }}
+  selector:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: pipeline
+  ports:
+    - name: cooked
+      port: {{ .Values.pipeline.service.cookedPort }}
+      targetPort: cooked
+    - name: uncooked
+      port: {{ .Values.pipeline.service.uncookedPort }}
+      targetPort: uncooked
