@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Launch one Splash horizontal shard (unique compose project + host ports).
+# Launch one Splastic horizontal shard (unique compose project + host ports).
 #
 # Usage:
 #   ./scripts/run-shard.sh <shard_id> up --build -d
@@ -9,7 +9,7 @@
 # Env overrides (optional):
 #   INGEST_BIND          default 127.0.0.1 (use 0.0.0.0 for remote Splunk)
 #   SHARD_PORT_STRIDE    default 10
-#   COMPOSE_PROJECT_NAME default splash${SHARD_ID}
+#   COMPOSE_PROJECT_NAME default splastic${SHARD_ID}
 #   COOKED_HOST_PORT / UNCOOKED_HOST_PORT / CLASSIFY_HOST_PORT /
 #     S2S_HEALTH_HOST_PORT / PROMETHEUS_HOST_PORT
 #     (skip auto offset if cooked+uncooked set)
@@ -34,9 +34,9 @@ if ! [[ "$SHARD_ID" =~ ^[0-9]+$ ]]; then
 fi
 
 STRIDE="${SHARD_PORT_STRIDE:-10}"
-export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-splash${SHARD_ID}}"
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-splastic${SHARD_ID}}"
 export INGEST_BIND="${INGEST_BIND:-127.0.0.1}"
-export SPLASH_SHARD_ID="$SHARD_ID"
+export SPLASTIC_SHARD_ID="$SHARD_ID"
 
 if [[ -z "${COOKED_HOST_PORT:-}" || -z "${UNCOOKED_HOST_PORT:-}" ]]; then
   export UNCOOKED_HOST_PORT=$((39997 + SHARD_ID * STRIDE))

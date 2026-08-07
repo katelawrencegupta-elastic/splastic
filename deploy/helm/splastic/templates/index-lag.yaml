@@ -2,9 +2,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "splash.fullname" . }}-index-lag
+  name: {{ include "splastic.fullname" . }}-index-lag
   labels:
-    {{- include "splash.labels" . | nindent 4 }}
+    {{- include "splastic.labels" . | nindent 4 }}
     app.kubernetes.io/component: index-lag
 spec:
   replicas: 1
@@ -32,7 +32,7 @@ spec:
             - name: ELASTIC_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "splash.secretName" . }}
+                  name: {{ include "splastic.secretName" . }}
                   key: elastic-api-key
             - name: DATA_STREAM_NAMESPACE
               value: {{ .Values.elastic.namespace | quote }}
@@ -45,7 +45,7 @@ spec:
               value: {{ .Values.indexLagProbe.s2sHealthUrls | quote }}
             {{- else }}
             - name: S2S_HEALTH_URLS
-              value: "{{ range $i, $_ := until (.Values.pipeline.replicaCount | int) }}{{ if $i }},{{ end }}http://{{ include "splash.fullname" $ }}-pipeline-{{ $i }}.{{ include "splash.fullname" $ }}-pipeline-headless:8081/health{{ end }}"
+              value: "{{ range $i, $_ := until (.Values.pipeline.replicaCount | int) }}{{ if $i }},{{ end }}http://{{ include "splastic.fullname" $ }}-pipeline-{{ $i }}.{{ include "splastic.fullname" $ }}-pipeline-headless:8081/health{{ end }}"
             {{- end }}
           readinessProbe:
             httpGet:
@@ -65,9 +65,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "splash.fullname" . }}-index-lag
+  name: {{ include "splastic.fullname" . }}-index-lag
   labels:
-    {{- include "splash.labels" . | nindent 4 }}
+    {{- include "splastic.labels" . | nindent 4 }}
     app.kubernetes.io/component: index-lag
 spec:
   type: ClusterIP

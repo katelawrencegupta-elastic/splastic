@@ -15,24 +15,24 @@ import s2s.server as server_mod
 
 
 def test_prom_labels_empty_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(server_mod, "SPLASH_SHARD_ID", "")
+    monkeypatch.setattr(server_mod, "SPLASTIC_SHARD_ID", "")
     monkeypatch.setattr(server_mod, "WRITER_WORKER_INDEX", "")
     assert server_mod._prom_labels() == ""
-    assert server_mod._m("splash_s2s_upstream_queue", 3) == "splash_s2s_upstream_queue 3"
+    assert server_mod._m("splastic_s2s_upstream_queue", 3) == "splastic_s2s_upstream_queue 3"
 
 
 def test_prom_labels_when_shard_set(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(server_mod, "SPLASH_SHARD_ID", "pipeline-0")
+    monkeypatch.setattr(server_mod, "SPLASTIC_SHARD_ID", "pipeline-0")
     monkeypatch.setattr(server_mod, "WRITER_WORKER_INDEX", "")
     assert server_mod._prom_labels() == '{shard="pipeline-0"}'
     assert (
-        server_mod._m("splash_s2s_upstream_queue", 3)
-        == 'splash_s2s_upstream_queue{shard="pipeline-0"} 3'
+        server_mod._m("splastic_s2s_upstream_queue", 3)
+        == 'splastic_s2s_upstream_queue{shard="pipeline-0"} 3'
     )
 
 
 def test_prom_labels_shard_and_worker(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(server_mod, "SPLASH_SHARD_ID", "pipeline-0")
+    monkeypatch.setattr(server_mod, "SPLASTIC_SHARD_ID", "pipeline-0")
     monkeypatch.setattr(server_mod, "WRITER_WORKER_INDEX", "2")
     assert server_mod._prom_labels() == '{shard="pipeline-0",worker="2"}'
 

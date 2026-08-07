@@ -1,4 +1,4 @@
-# Splash Helm Chart
+# Splastic Helm Chart
 
 Minimal Kubernetes deploy: shared **classify** Deployment + **pipeline**
 StatefulSet (one writer pod = one shard; cooked + uncooked; per-pod spill PVC)
@@ -7,8 +7,8 @@ behind a LoadBalancer Service VIP.
 ## Install
 
 ```bash
-helm upgrade --install splash ./deploy/helm/splastic \
-  --namespace splash --create-namespace \
+helm upgrade --install splastic ./deploy/helm/splastic \
+  --namespace splastic --create-namespace \
   --set elastic.host="$ELASTIC_HOST" \
   --set elastic.apiKey="$ELASTIC_API_KEY" \
   --set classify.authToken="$CLASSIFY_AUTH_TOKEN" \
@@ -20,7 +20,7 @@ helm upgrade --install splash ./deploy/helm/splastic \
 and mounted via `secretKeyRef`. To use an externally managed Secret:
 
 ```bash
---set existingSecret=my-splash-creds
+--set existingSecret=my-splastic-creds
 ```
 
 Point Splunk `tcpout` at the pipeline Service EXTERNAL-IP / hostname for cooked
@@ -58,7 +58,7 @@ CPU requests/limits (defaults):
 
 Pods use `terminationGracePeriodSeconds: 40` (covers bulk drain). StatefulSet
 rolling updates use `maxUnavailable: 1` to limit ensure-cache flush storms.
-Writer metrics are labeled `shard="<pod-name>"` via `SPLASH_SHARD_ID` /
+Writer metrics are labeled `shard="<pod-name>"` via `SPLASTIC_SHARD_ID` /
 `POD_NAME`. Default `writerProcesses: "4"` runs SO_REUSEPORT workers inside
 each pod (`WRITER_PROCESSES`); set to `"1"` for single-process debug.
 

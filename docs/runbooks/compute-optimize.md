@@ -1,4 +1,4 @@
-# Compute optimization playbook — Splash
+# Compute optimization playbook — Splastic
 
 Raise GB/s per vCPU-dollar with gated phases.
 
@@ -15,7 +15,7 @@ python -m loadtest run -s S1 --eps 5000 --duration 120
 | Observation | Next |
 |-------------|------|
 | Queue pegs, classify idle | Scale writer CPU or shards; check ES |
-| Cold-path / ensure high (`splash:miss_fraction:1m`) | Phase 1 (metadata hit rate) |
+| Cold-path / ensure high (`splastic:miss_fraction:1m`) | Phase 1 (metadata hit rate) |
 | Otherwise | Horizontal shards (Phase 3) |
 
 ## Phase 1 — Metadata hit rate
@@ -24,7 +24,7 @@ Keep `miss_fraction < 0.1` via [`sidecar/classify_rules.json`](../../sidecar/cla
 (synced to `packages/splastic-writer/writer/classify_rules.json`).
 
 Miss = writer `classify_message_hit` + `classify_generic` (see recording rules in
-[`deploy/alerts/splash-recording.yaml`](../../deploy/alerts/splash-recording.yaml)).
+[`deploy/alerts/splastic-recording.yaml`](../../deploy/alerts/splastic-recording.yaml)).
 
 ## Phase 2 — Multi-process writer (per-pod GB/s)
 

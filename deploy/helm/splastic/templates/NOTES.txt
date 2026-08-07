@@ -1,4 +1,4 @@
-1. Splash is installed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
+1. Splastic is installed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
 
 2. Multi-writer capacity:
    - ~0.008 GB/s (~5k eps @ 1536 B) per pipeline replica
@@ -10,7 +10,7 @@
 
 3. Point Splunk cooked tcpout at the pipeline Service VIP (L4 TCP):
 
-     kubectl get svc {{ include "splash.fullname" . }}-pipeline -n {{ .Release.Namespace }}
+     kubectl get svc {{ include "splastic.fullname" . }}-pipeline -n {{ .Release.Namespace }}
 
      server = <EXTERNAL-IP or hostname>:{{ .Values.pipeline.service.cookedPort }}
 
@@ -25,10 +25,10 @@
    size={{ .Values.pipeline.persistence.size }} (per-pod spill survives restart).
 
 5. Metrics (writer scrapes include shard="<pod-name>" label):
-   - classify: http://{{ include "splash.fullname" . }}-classify:{{ .Values.classify.service.port }}/metrics
+   - classify: http://{{ include "splastic.fullname" . }}-classify:{{ .Values.classify.service.port }}/metrics
    - writer:   http://<pipeline-pod>:8081/metrics
-   - lag:      http://{{ include "splash.fullname" . }}-index-lag:{{ .Values.indexLagProbe.port }}/metrics (if enabled)
+   - lag:      http://{{ include "splastic.fullname" . }}-index-lag:{{ .Values.indexLagProbe.port }}/metrics (if enabled)
 
-6. Alerts: deploy/alerts/splash-alerts.yaml + splash-recording.yaml
+6. Alerts: deploy/alerts/splastic-alerts.yaml + splastic-recording.yaml
    Runbooks: docs/runbooks/sharding.md , docs/runbooks/compute-optimize.md ,
              docs/runbooks/alerting.md , docs/runbooks/spill.md

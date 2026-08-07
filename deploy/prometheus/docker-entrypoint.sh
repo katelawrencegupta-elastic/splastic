@@ -57,10 +57,10 @@ case "$REMOTE_WRITE_URL" in
     ;;
 esac
 
-SHARD_ID="$(strip "${SPLASH_SHARD_ID:-0}")"
+SHARD_ID="$(strip "${SPLASTIC_SHARD_ID:-0}")"
 case "$SHARD_ID" in
   ''|*[!0-9]*)
-    echo "SPLASH_SHARD_ID must be a non-negative integer, got: ${SPLASH_SHARD_ID:-}" >&2
+    echo "SPLASTIC_SHARD_ID must be a non-negative integer, got: ${SPLASTIC_SHARD_ID:-}" >&2
     exit 1
     ;;
 esac

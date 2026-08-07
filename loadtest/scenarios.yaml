@@ -1,4 +1,4 @@
-# Load-test scenarios for Splash (see README.md).
+# Load-test scenarios for Splastic (see README.md).
 # Durations are defaults; CLI --duration / --eps override target rate and steady length.
 
 defaults:

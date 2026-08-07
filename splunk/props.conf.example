@@ -1,4 +1,4 @@
-# Prefer these so Splash stays on the metadata-local classify path (compute Phase 1).
+# Prefer these so Splastic stays on the metadata-local classify path (compute Phase 1).
 # Empty sourcetype/source forces the writer message-pattern path (cold).
 
 # Example: ensure sourcetype is set at index time for common access logs.

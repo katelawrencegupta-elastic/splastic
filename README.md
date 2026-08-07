@@ -1,10 +1,10 @@
-# Splash
+# Splastic
 
 Splunk → Elasticsearch ingest bridge. Terminates Splunk forwarder traffic (cooked
 S2S and uncooked TCP), classifies events into ECS data streams, ensures those
 streams exist, and indexes into Elastic as `logs-{dataset}-{namespace}`.
 
-Repo directory: `splastic`. Product name in docs/compose/Helm: **Splash**.
+Repo directory / product name: **Splastic**.
 
 ## Architecture
 
@@ -19,7 +19,7 @@ Splunk cooked tcpout :39998          Splunk uncooked :39997
                 first-seen stream only
                           │
                           ▼
-                 splash-classify :8080
+                 splastic-classify :8080
                  (template + /ensure/batch)
                           │
                           ▼

@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "splash.fullname" . }}-pipeline
+  name: {{ include "splastic.fullname" . }}-pipeline
   labels:
-    {{- include "splash.labels" . | nindent 4 }}
+    {{- include "splastic.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline
 spec:
-  serviceName: {{ include "splash.fullname" . }}-pipeline-headless
+  serviceName: {{ include "splastic.fullname" . }}-pipeline-headless
   replicas: {{ .Values.pipeline.replicaCount }}
   updateStrategy:
     type: RollingUpdate
@@ -50,14 +50,14 @@ spec:
             - name: ELASTIC_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "splash.secretName" . }}
+                  name: {{ include "splastic.secretName" . }}
                   key: elastic-api-key
             - name: CLASSIFY_URL
-              value: {{ include "splash.classifyUrl" . | quote }}
+              value: {{ include "splastic.classifyUrl" . | quote }}
             - name: CLASSIFY_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "splash.secretName" . }}
+                  name: {{ include "splastic.secretName" . }}
                   key: classify-auth-token
             - name: DATA_STREAM_NAMESPACE
               value: {{ .Values.elastic.namespace | quote }}
@@ -81,7 +81,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            - name: SPLASH_SHARD_ID
+            - name: SPLASTIC_SHARD_ID
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
@@ -125,9 +125,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "splash.fullname" . }}-pipeline-headless
+  name: {{ include "splastic.fullname" . }}-pipeline-headless
   labels:
-    {{- include "splash.labels" . | nindent 4 }}
+    {{- include "splastic.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline
 spec:
   clusterIP: None
@@ -149,9 +149,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "splash.fullname" . }}-pipeline
+  name: {{ include "splastic.fullname" . }}-pipeline
   labels:
-    {{- include "splash.labels" . | nindent 4 }}
+    {{- include "splastic.labels" . | nindent 4 }}
     app.kubernetes.io/component: pipeline
 spec:
   type: {{ .Values.pipeline.service.type }}

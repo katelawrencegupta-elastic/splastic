@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Capture Splash compute-optimize baseline signals from a running stack.
+# Capture Splastic compute-optimize baseline signals from a running stack.
 # Usage:
 #   S2S_METRICS=http://127.0.0.1:8081/metrics \
 #   CLASSIFY_METRICS=http://127.0.0.1:8080/metrics \
@@ -26,7 +26,7 @@ metric() {
     }'
 }
 
-echo "=== Splash compute baseline $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+echo "=== Splastic compute baseline $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
 echo "s2s_metrics=$S2S_METRICS"
 echo "classify_metrics=$CLASSIFY_METRICS"
 echo
@@ -36,12 +36,12 @@ cls="$(fetch "$CLASSIFY_METRICS" || true)"
 
 if [[ -n "${s2s:-}" ]]; then
   echo "-- s2s-decode --"
-  echo "upstream_queue=$(metric "$s2s" splash_s2s_upstream_queue)"
-  echo "upstream_queue_capacity=$(metric "$s2s" splash_s2s_upstream_queue_capacity)"
-  echo "events_emitted_total=$(metric "$s2s" splash_s2s_events_emitted_total)"
-  echo "bytes_consumed_total=$(metric "$s2s" splash_s2s_bytes_consumed_total)"
-  echo "avg_event_bytes=$(metric "$s2s" splash_s2s_avg_event_bytes)"
-  echo "active_connections=$(metric "$s2s" splash_s2s_active_connections)"
+  echo "upstream_queue=$(metric "$s2s" splastic_s2s_upstream_queue)"
+  echo "upstream_queue_capacity=$(metric "$s2s" splastic_s2s_upstream_queue_capacity)"
+  echo "events_emitted_total=$(metric "$s2s" splastic_s2s_events_emitted_total)"
+  echo "bytes_consumed_total=$(metric "$s2s" splastic_s2s_bytes_consumed_total)"
+  echo "avg_event_bytes=$(metric "$s2s" splastic_s2s_avg_event_bytes)"
+  echo "active_connections=$(metric "$s2s" splastic_s2s_active_connections)"
   echo
 else
   echo "-- s2s-decode: unavailable --"
@@ -50,10 +50,10 @@ fi
 
 if [[ -n "${cls:-}" ]]; then
   echo "-- classify --"
-  echo "classify_ready=$(metric "$cls" splash_classify_ready)"
-  echo "classify_batch_events_total=$(metric "$cls" splash_classify_batch_events_total)"
-  echo "classify_batch_requests_total=$(metric "$cls" splash_classify_batch_requests_total)"
-  echo "ensure_batch_streams_total=$(metric "$cls" splash_ensure_batch_streams_total)"
+  echo "classify_ready=$(metric "$cls" splastic_classify_ready)"
+  echo "classify_batch_events_total=$(metric "$cls" splastic_classify_batch_events_total)"
+  echo "classify_batch_requests_total=$(metric "$cls" splastic_classify_batch_requests_total)"
+  echo "ensure_batch_streams_total=$(metric "$cls" splastic_ensure_batch_streams_total)"
   echo
 else
   echo "-- classify: unavailable --"
@@ -63,8 +63,8 @@ fi
 cat <<'EOF'
 Interpret:
   - upstream_queue near capacity → writer/ES behind (Phase 2 / shard).
-  - high splash:miss_fraction:1m on hot soak → cold classify path (Phase 1).
-  - Prefer Prometheus: splash:ingest_gbps:5m, splash:miss_fraction:1m,
-    splash:hit_fraction:1m (see deploy/alerts/splash-recording.yaml).
+  - high splastic:miss_fraction:1m on hot soak → cold classify path (Phase 1).
+  - Prefer Prometheus: splastic:ingest_gbps:5m, splastic:miss_fraction:1m,
+    splastic:hit_fraction:1m (see deploy/alerts/splastic-recording.yaml).
   - Planning floor remains 0.008 GB/s/stack until Phase 2 vertical probe wins.
 EOF

@@ -1,4 +1,4 @@
-"""Poll Splash health endpoints and optional Elasticsearch _count."""
+"""Poll Splastic health endpoints and optional Elasticsearch _count."""
 
 from __future__ import annotations
 

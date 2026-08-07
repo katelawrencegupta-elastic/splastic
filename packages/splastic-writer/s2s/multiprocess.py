@@ -29,7 +29,7 @@ logger = logging.getLogger("s2s.multiprocess")
 WORKER_HEALTH_BASE = int(os.environ.get("WRITER_WORKER_HEALTH_BASE", "18081"))
 HEALTH_PORT = int(os.environ.get("S2S_HEALTH_PORT", "8081"))
 HEALTH_HOST = os.environ.get("S2S_HEALTH_HOST", "0.0.0.0")
-SPLASH_SHARD_ID = os.environ.get("SPLASH_SHARD_ID", "").strip()
+SPLASTIC_SHARD_ID = os.environ.get("SPLASTIC_SHARD_ID", "").strip()
 POD_NAME = os.environ.get("POD_NAME", "").strip()
 
 # Stats keys summed across workers for aggregator /health and /metrics.
@@ -97,9 +97,9 @@ def _prom_escape(value: str) -> str:
 
 
 def _agg_labels() -> str:
-    if not SPLASH_SHARD_ID:
+    if not SPLASTIC_SHARD_ID:
         return ""
-    return f'{{shard="{_prom_escape(SPLASH_SHARD_ID)}"}}'
+    return f'{{shard="{_prom_escape(SPLASTIC_SHARD_ID)}"}}'
 
 
 def metrics_text_from_stats(stats: dict[str, Any]) -> str:
@@ -113,75 +113,75 @@ def metrics_text_from_stats(stats: dict[str, Any]) -> str:
     bytes_c = int(stats.get("bytes_consumed") or 0)
     avg = (float(bytes_c) / float(events)) if events > 0 else 0.0
     lines = [
-        "# HELP splash_s2s_handshake_seen_total Cooked-mode handshakes seen",
-        "# TYPE splash_s2s_handshake_seen_total counter",
-        m("splash_s2s_handshake_seen_total", stats.get("handshake_seen", 0)),
-        "# HELP splash_s2s_frames_ok_total Successfully decoded S2S frames",
-        "# TYPE splash_s2s_frames_ok_total counter",
-        m("splash_s2s_frames_ok_total", stats.get("frames_ok", 0)),
-        "# HELP splash_s2s_frames_bad_magic_total Frames rejected (bad magic/framing)",
-        "# TYPE splash_s2s_frames_bad_magic_total counter",
-        m("splash_s2s_frames_bad_magic_total", stats.get("frames_bad_magic", 0)),
-        "# HELP splash_s2s_frames_bad_kv_total Frames rejected (KV/body parse)",
-        "# TYPE splash_s2s_frames_bad_kv_total counter",
-        m("splash_s2s_frames_bad_kv_total", stats.get("frames_bad_kv", 0)),
-        "# HELP splash_s2s_frames_oversized_total Oversized frames rejected",
-        "# TYPE splash_s2s_frames_oversized_total counter",
-        m("splash_s2s_frames_oversized_total", stats.get("frames_oversized", 0)),
-        "# HELP splash_s2s_events_emitted_total Events decoded from cooked S2S",
-        "# TYPE splash_s2s_events_emitted_total counter",
-        m("splash_s2s_events_emitted_total", stats.get("events_emitted", 0)),
-        "# HELP splash_s2s_bytes_consumed_total Bytes read from Splunk clients",
-        "# TYPE splash_s2s_bytes_consumed_total counter",
-        m("splash_s2s_bytes_consumed_total", stats.get("bytes_consumed", 0)),
-        "# HELP splash_s2s_avg_event_bytes Average bytes per emitted event (lifetime)",
-        "# TYPE splash_s2s_avg_event_bytes gauge",
-        m("splash_s2s_avg_event_bytes", f"{avg:.3f}"),
-        "# HELP splash_s2s_upstream_queue Events waiting for Elasticsearch bulk",
-        "# TYPE splash_s2s_upstream_queue gauge",
-        m("splash_s2s_upstream_queue", stats.get("upstream_queue", 0)),
-        "# HELP splash_s2s_upstream_queue_capacity Max bulk queue size",
-        "# TYPE splash_s2s_upstream_queue_capacity gauge",
+        "# HELP splastic_s2s_handshake_seen_total Cooked-mode handshakes seen",
+        "# TYPE splastic_s2s_handshake_seen_total counter",
+        m("splastic_s2s_handshake_seen_total", stats.get("handshake_seen", 0)),
+        "# HELP splastic_s2s_frames_ok_total Successfully decoded S2S frames",
+        "# TYPE splastic_s2s_frames_ok_total counter",
+        m("splastic_s2s_frames_ok_total", stats.get("frames_ok", 0)),
+        "# HELP splastic_s2s_frames_bad_magic_total Frames rejected (bad magic/framing)",
+        "# TYPE splastic_s2s_frames_bad_magic_total counter",
+        m("splastic_s2s_frames_bad_magic_total", stats.get("frames_bad_magic", 0)),
+        "# HELP splastic_s2s_frames_bad_kv_total Frames rejected (KV/body parse)",
+        "# TYPE splastic_s2s_frames_bad_kv_total counter",
+        m("splastic_s2s_frames_bad_kv_total", stats.get("frames_bad_kv", 0)),
+        "# HELP splastic_s2s_frames_oversized_total Oversized frames rejected",
+        "# TYPE splastic_s2s_frames_oversized_total counter",
+        m("splastic_s2s_frames_oversized_total", stats.get("frames_oversized", 0)),
+        "# HELP splastic_s2s_events_emitted_total Events decoded from cooked S2S",
+        "# TYPE splastic_s2s_events_emitted_total counter",
+        m("splastic_s2s_events_emitted_total", stats.get("events_emitted", 0)),
+        "# HELP splastic_s2s_bytes_consumed_total Bytes read from Splunk clients",
+        "# TYPE splastic_s2s_bytes_consumed_total counter",
+        m("splastic_s2s_bytes_consumed_total", stats.get("bytes_consumed", 0)),
+        "# HELP splastic_s2s_avg_event_bytes Average bytes per emitted event (lifetime)",
+        "# TYPE splastic_s2s_avg_event_bytes gauge",
+        m("splastic_s2s_avg_event_bytes", f"{avg:.3f}"),
+        "# HELP splastic_s2s_upstream_queue Events waiting for Elasticsearch bulk",
+        "# TYPE splastic_s2s_upstream_queue gauge",
+        m("splastic_s2s_upstream_queue", stats.get("upstream_queue", 0)),
+        "# HELP splastic_s2s_upstream_queue_capacity Max bulk queue size",
+        "# TYPE splastic_s2s_upstream_queue_capacity gauge",
         m(
-            "splash_s2s_upstream_queue_capacity",
+            "splastic_s2s_upstream_queue_capacity",
             stats.get("upstream_queue_capacity", 0),
         ),
-        "# HELP splash_s2s_active_connections Active S2S client connections",
-        "# TYPE splash_s2s_active_connections gauge",
-        m("splash_s2s_active_connections", stats.get("active_connections", 0)),
-        "# HELP splash_s2s_max_connections Configured S2S connection cap",
-        "# TYPE splash_s2s_max_connections gauge",
-        m("splash_s2s_max_connections", stats.get("max_connections", 0)),
-        "# HELP splash_writer_events_in_total Events accepted by ingest pipeline",
-        "# TYPE splash_writer_events_in_total counter",
-        m("splash_writer_events_in_total", stats.get("events_in", 0)),
-        "# HELP splash_writer_indexed_ok_total Documents accepted by ES bulk",
-        "# TYPE splash_writer_indexed_ok_total counter",
-        m("splash_writer_indexed_ok_total", stats.get("indexed_ok", 0)),
-        "# HELP splash_writer_indexed_fail_total Documents failed in ES bulk",
-        "# TYPE splash_writer_indexed_fail_total counter",
-        m("splash_writer_indexed_fail_total", stats.get("indexed_fail", 0)),
-        "# HELP splash_writer_bulk_requests_total Elasticsearch _bulk HTTP calls",
-        "# TYPE splash_writer_bulk_requests_total counter",
-        m("splash_writer_bulk_requests_total", stats.get("bulk_requests", 0)),
-        "# HELP splash_writer_ensure_calls_total POST /ensure/batch calls",
-        "# TYPE splash_writer_ensure_calls_total counter",
-        m("splash_writer_ensure_calls_total", stats.get("ensure_calls", 0)),
-        "# HELP splash_writer_classify_meta_hit_total Metadata-path classify hits",
-        "# TYPE splash_writer_classify_meta_hit_total counter",
-        m("splash_writer_classify_meta_hit_total", stats.get("classify_meta_hit", 0)),
-        "# HELP splash_writer_classify_message_hit_total Message-path classify hits",
-        "# TYPE splash_writer_classify_message_hit_total counter",
+        "# HELP splastic_s2s_active_connections Active S2S client connections",
+        "# TYPE splastic_s2s_active_connections gauge",
+        m("splastic_s2s_active_connections", stats.get("active_connections", 0)),
+        "# HELP splastic_s2s_max_connections Configured S2S connection cap",
+        "# TYPE splastic_s2s_max_connections gauge",
+        m("splastic_s2s_max_connections", stats.get("max_connections", 0)),
+        "# HELP splastic_writer_events_in_total Events accepted by ingest pipeline",
+        "# TYPE splastic_writer_events_in_total counter",
+        m("splastic_writer_events_in_total", stats.get("events_in", 0)),
+        "# HELP splastic_writer_indexed_ok_total Documents accepted by ES bulk",
+        "# TYPE splastic_writer_indexed_ok_total counter",
+        m("splastic_writer_indexed_ok_total", stats.get("indexed_ok", 0)),
+        "# HELP splastic_writer_indexed_fail_total Documents failed in ES bulk",
+        "# TYPE splastic_writer_indexed_fail_total counter",
+        m("splastic_writer_indexed_fail_total", stats.get("indexed_fail", 0)),
+        "# HELP splastic_writer_bulk_requests_total Elasticsearch _bulk HTTP calls",
+        "# TYPE splastic_writer_bulk_requests_total counter",
+        m("splastic_writer_bulk_requests_total", stats.get("bulk_requests", 0)),
+        "# HELP splastic_writer_ensure_calls_total POST /ensure/batch calls",
+        "# TYPE splastic_writer_ensure_calls_total counter",
+        m("splastic_writer_ensure_calls_total", stats.get("ensure_calls", 0)),
+        "# HELP splastic_writer_classify_meta_hit_total Metadata-path classify hits",
+        "# TYPE splastic_writer_classify_meta_hit_total counter",
+        m("splastic_writer_classify_meta_hit_total", stats.get("classify_meta_hit", 0)),
+        "# HELP splastic_writer_classify_message_hit_total Message-path classify hits",
+        "# TYPE splastic_writer_classify_message_hit_total counter",
         m(
-            "splash_writer_classify_message_hit_total",
+            "splastic_writer_classify_message_hit_total",
             stats.get("classify_message_hit", 0),
         ),
-        "# HELP splash_writer_classify_generic_total Generic fallback classify",
-        "# TYPE splash_writer_classify_generic_total counter",
-        m("splash_writer_classify_generic_total", stats.get("classify_generic", 0)),
-        "# HELP splash_writer_processes Writer OS processes in this pod",
-        "# TYPE splash_writer_processes gauge",
-        m("splash_writer_processes", writer_processes()),
+        "# HELP splastic_writer_classify_generic_total Generic fallback classify",
+        "# TYPE splastic_writer_classify_generic_total counter",
+        m("splastic_writer_classify_generic_total", stats.get("classify_generic", 0)),
+        "# HELP splastic_writer_processes Writer OS processes in this pod",
+        "# TYPE splastic_writer_processes gauge",
+        m("splastic_writer_processes", writer_processes()),
         "",
     ]
     return "\n".join(lines)
@@ -304,8 +304,8 @@ def run_supervisor(n: int) -> None:
             "stats": agg,
             "workers": workers,
         }
-        if SPLASH_SHARD_ID:
-            payload["shard"] = SPLASH_SHARD_ID
+        if SPLASTIC_SHARD_ID:
+            payload["shard"] = SPLASTIC_SHARD_ID
         if POD_NAME:
             payload["pod"] = POD_NAME
         return web.json_response(payload)

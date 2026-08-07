@@ -19,7 +19,7 @@ import pytest
 from s2s.decoder import S2SSession
 from s2s.message import try_read_message
 
-# splash/testdata/s2s (repo root relative from packages/s2s-decode/tests)
+# splastic/testdata/s2s (repo root relative from packages/s2s-decode/tests)
 GOLDEN_ROOT = Path(__file__).resolve().parents[3] / "testdata" / "s2s"
 
 

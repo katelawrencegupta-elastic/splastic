@@ -1,4 +1,4 @@
-# Horizontal shard overlay for Splash (writer owns cooked + uncooked).
+# Horizontal shard overlay for Splastic (writer owns cooked + uncooked).
 #
 # Port map (default stride 10):
 #   SHARD_ID=0 → uncooked 39997, cooked 39998, classify 8080, s2s health 8081,
@@ -24,6 +24,6 @@ services:
   prometheus:
     container_name: !reset null
     environment:
-      SPLASH_SHARD_ID: "${SPLASH_SHARD_ID:-0}"
+      SPLASTIC_SHARD_ID: "${SPLASTIC_SHARD_ID:-0}"
     ports: !override
       - "${INGEST_BIND:-127.0.0.1}:${PROMETHEUS_HOST_PORT:-9090}:9090"

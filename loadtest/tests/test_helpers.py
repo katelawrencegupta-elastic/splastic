@@ -1,4 +1,4 @@
-"""Unit tests for loadtest helpers (no running Splash stack required)."""
+"""Unit tests for loadtest helpers (no running Splastic stack required)."""
 
 from __future__ import annotations
 

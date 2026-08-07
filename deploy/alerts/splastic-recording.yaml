@@ -1,0 +1,49 @@
+# Prometheus recording rules for Splastic capacity / miss-rate signals.
+#
+# Load alongside splastic-alerts.yaml (PrometheusRule or classic rule_files).
+
+groups:
+  - name: splastic-recording
+    interval: 15s
+    rules:
+      # Ingest GB/s (decimal): rate(bytes) / 1e9
+      - record: splastic:ingest_gbps:1m
+        expr: sum(rate(splastic_s2s_bytes_consumed_total[1m])) / 1e9
+
+      - record: splastic:ingest_gbps:5m
+        expr: sum(rate(splastic_s2s_bytes_consumed_total[5m])) / 1e9
+
+      - record: splastic:ingest_gbps:1h
+        expr: sum(rate(splastic_s2s_bytes_consumed_total[1h])) / 1e9
+
+      - record: splastic:ingest_eps:1m
+        expr: sum(rate(splastic_s2s_events_emitted_total[1m]))
+
+      - record: splastic:peak_to_avg:1d
+        expr: >-
+          (
+            max_over_time(splastic:ingest_gbps:5m[1d])
+            /
+            clamp_min(avg_over_time(splastic:ingest_gbps:5m[1d]), 1e-12)
+          )
+
+      # Cold path = message-pattern + generic fallback (in-writer classify).
+      - record: splastic:classify_miss_eps:1m
+        expr: >-
+          (
+            sum(rate(splastic_writer_classify_message_hit_total[1m]))
+            +
+            sum(rate(splastic_writer_classify_generic_total[1m]))
+          )
+
+      - record: splastic:miss_fraction:1m
+        expr: >-
+          (
+            splastic:classify_miss_eps:1m
+            /
+            clamp_min(splastic:ingest_eps:1m, 1e-9)
+          )
+
+      # 1 - miss_fraction; useful for compute-optimize Phase 1 target (>0.9).
+      - record: splastic:hit_fraction:1m
+        expr: clamp_min(1 - splastic:miss_fraction:1m, 0)

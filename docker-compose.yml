@@ -1,7 +1,7 @@
 services:
   classify:
     build: ./sidecar
-    container_name: splash-classify
+    container_name: splastic-classify
     environment:
       ELASTIC_HOST: "${ELASTIC_HOST:?ELASTIC_HOST is required}"
       ELASTIC_API_KEY: "${ELASTIC_API_KEY:?ELASTIC_API_KEY is required}"
@@ -9,7 +9,7 @@ services:
       UVICORN_WORKERS: "${UVICORN_WORKERS:-1}"
       ELASTIC_HTTP_TIMEOUT_S: "${ELASTIC_HTTP_TIMEOUT_S:-2.0}"
       ELASTIC_ENSURE_CONCURRENCY: "${ELASTIC_ENSURE_CONCURRENCY:-8}"
-      CLASSIFY_AUTH_TOKEN: "${CLASSIFY_AUTH_TOKEN:-splash-dev-classify-token}"
+      CLASSIFY_AUTH_TOKEN: "${CLASSIFY_AUTH_TOKEN:-splastic-dev-classify-token}"
     expose:
       - "8080"
     restart: unless-stopped
@@ -23,7 +23,7 @@ services:
   # Cooked S2S :39998 + uncooked TCP :39997 → in-process classify → ES _bulk
   s2s-decode:
     build: ./packages/splastic-writer
-    container_name: splash-s2s-decode
+    container_name: splastic-s2s-decode
     ports:
       - "${INGEST_BIND:-127.0.0.1}:39998:39998"
       - "${INGEST_BIND:-127.0.0.1}:39997:39997"
@@ -38,7 +38,7 @@ services:
       ELASTIC_HOST: "${ELASTIC_HOST:?ELASTIC_HOST is required}"
       ELASTIC_API_KEY: "${ELASTIC_API_KEY:?ELASTIC_API_KEY is required}"
       CLASSIFY_URL: "http://classify:8080"
-      CLASSIFY_AUTH_TOKEN: "${CLASSIFY_AUTH_TOKEN:-splash-dev-classify-token}"
+      CLASSIFY_AUTH_TOKEN: "${CLASSIFY_AUTH_TOKEN:-splastic-dev-classify-token}"
       DATA_STREAM_NAMESPACE: "${DATA_STREAM_NAMESPACE:-default}"
       S2S_UPSTREAM_QUEUE_SIZE: "${S2S_UPSTREAM_QUEUE_SIZE:-10000}"
       S2S_UPSTREAM_BATCH_SIZE: "${S2S_UPSTREAM_BATCH_SIZE:-1000}"
@@ -49,7 +49,7 @@ services:
       S2S_MAX_CONNECTIONS: "${S2S_MAX_CONNECTIONS:-256}"
       S2S_MAX_SESSION_BUFFER_BYTES: "${S2S_MAX_SESSION_BUFFER_BYTES:-33554432}"
       WRITER_SPILL_DIR: "${WRITER_SPILL_DIR:-/var/lib/splastic/spill}"
-      SPLASH_SHARD_ID: "${SPLASH_SHARD_ID:-0}"
+      SPLASTIC_SHARD_ID: "${SPLASTIC_SHARD_ID:-0}"
       LOG_LEVEL: "INFO"
     volumes:
       - writer_spill:/var/lib/splastic/spill
@@ -66,7 +66,7 @@ services:
 
   index-lag-probe:
     build: ./deploy/index_lag_probe
-    container_name: splash-index-lag-probe
+    container_name: splastic-index-lag-probe
     profiles: ["metrics"]
     environment:
       ELASTIC_HOST: "${ELASTIC_HOST:?ELASTIC_HOST is required}"
@@ -83,20 +83,20 @@ services:
 
   prometheus:
     build: ./deploy/prometheus
-    container_name: splash-prometheus
+    container_name: splastic-prometheus
     profiles: ["metrics"]
     environment:
       ELASTIC_HOST: "${ELASTIC_HOST:?ELASTIC_HOST is required}"
       ELASTIC_API_KEY: "${ELASTIC_API_KEY:-}"
       PROMETHEUS_ELASTIC_API_KEY: "${PROMETHEUS_ELASTIC_API_KEY:-}"
       PROMETHEUS_REMOTE_WRITE_URL: "${PROMETHEUS_REMOTE_WRITE_URL:-}"
-      SPLASH_SHARD_ID: "${SPLASH_SHARD_ID:-0}"
+      SPLASTIC_SHARD_ID: "${SPLASTIC_SHARD_ID:-0}"
     ports:
       - "${INGEST_BIND:-127.0.0.1}:${PROMETHEUS_HOST_PORT:-9090}:9090"
     volumes:
       - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml.tmpl:ro
-      - ./deploy/alerts/splash-alerts.yaml:/etc/prometheus/rules/splash-alerts.yaml:ro
-      - ./deploy/alerts/splash-recording.yaml:/etc/prometheus/rules/splash-recording.yaml:ro
+      - ./deploy/alerts/splastic-alerts.yaml:/etc/prometheus/rules/splastic-alerts.yaml:ro
+      - ./deploy/alerts/splastic-recording.yaml:/etc/prometheus/rules/splastic-recording.yaml:ro
       - prometheus_data:/prometheus
     depends_on:
       - s2s-decode

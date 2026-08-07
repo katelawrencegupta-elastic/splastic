@@ -41,7 +41,7 @@ async def test_ensure_data_stream_puts_once_and_caches(manager: DataStreamManage
 
     assert manager._client.request.await_count == 2
     paths = [c.args[1] for c in manager._client.request.await_args_list]
-    assert paths[0].endswith("/_index_template/splash-logs")
+    assert paths[0].endswith("/_index_template/splastic-logs")
     assert paths[1].endswith("/_data_stream/logs-access_log-default")
 
 

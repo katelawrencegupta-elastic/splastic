@@ -1,5 +1,5 @@
 apiVersion: v2
-name: splash
+name: splastic
 description: Splunk → Elasticsearch ingest bridge (classify + splastic-writer)
 type: application
 version: 0.1.0

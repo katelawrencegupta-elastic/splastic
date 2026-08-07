@@ -49,5 +49,5 @@ def test_metrics_text_includes_queue() -> None:
     text = metrics_text_from_stats(
         {"upstream_queue": 12, "events_emitted": 0, "bytes_consumed": 0}
     )
-    assert "splash_s2s_upstream_queue 12" in text
-    assert "splash_writer_processes" in text
+    assert "splastic_s2s_upstream_queue 12" in text
+    assert "splastic_writer_processes" in text

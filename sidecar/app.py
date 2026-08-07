@@ -24,7 +24,7 @@ logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO").upper(),
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
-logger = logging.getLogger("splash.classify")
+logger = logging.getLogger("splastic.classify")
 
 # Required — no hardcoded cluster default (avoids silent wrong-cluster writes).
 ELASTIC_HOST = os.environ.get("ELASTIC_HOST", "").strip().rstrip("/")
@@ -99,7 +99,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
             logger.info("Closed DataStreamManager HTTP client")
 
 
-app = FastAPI(title="splash-classify", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="splastic-classify", version="1.0.0", lifespan=lifespan)
 
 # Paths that stay open for k8s probes / Prometheus (no Bearer).
 _AUTH_SKIP_PATHS = frozenset({"/health", "/metrics"})
@@ -356,32 +356,32 @@ async def metrics() -> PlainTextResponse:
         ensure_streams = _ensure_batch_streams
         http_counts = dict(_http_requests)
     lines = [
-        "# HELP splash_classify_ready 1 if classify index template is ready",
-        "# TYPE splash_classify_ready gauge",
-        f"splash_classify_ready {ready}",
-        "# HELP splash_pipelines_ready Deprecated alias of splash_classify_ready",
-        "# TYPE splash_pipelines_ready gauge",
-        f"splash_pipelines_ready {ready}",
-        "# HELP splash_ensure_failures_total Data-stream ensure failures",
-        "# TYPE splash_ensure_failures_total counter",
-        f"splash_ensure_failures_total {failures}",
-        "# HELP splash_classify_batch_requests_total POST /classify/batch calls",
-        "# TYPE splash_classify_batch_requests_total counter",
-        f"splash_classify_batch_requests_total {batch_reqs}",
-        "# HELP splash_classify_batch_events_total Events in /classify/batch (metadata-miss path)",
-        "# TYPE splash_classify_batch_events_total counter",
-        f"splash_classify_batch_events_total {batch_events}",
-        "# HELP splash_ensure_batch_requests_total POST /ensure/batch calls",
-        "# TYPE splash_ensure_batch_requests_total counter",
-        f"splash_ensure_batch_requests_total {ensure_reqs}",
-        "# HELP splash_ensure_batch_streams_total Streams in /ensure/batch",
-        "# TYPE splash_ensure_batch_streams_total counter",
-        f"splash_ensure_batch_streams_total {ensure_streams}",
-        "# HELP splash_classify_http_requests_total Classify HTTP requests by path",
-        "# TYPE splash_classify_http_requests_total counter",
+        "# HELP splastic_classify_ready 1 if classify index template is ready",
+        "# TYPE splastic_classify_ready gauge",
+        f"splastic_classify_ready {ready}",
+        "# HELP splastic_pipelines_ready Deprecated alias of splastic_classify_ready",
+        "# TYPE splastic_pipelines_ready gauge",
+        f"splastic_pipelines_ready {ready}",
+        "# HELP splastic_ensure_failures_total Data-stream ensure failures",
+        "# TYPE splastic_ensure_failures_total counter",
+        f"splastic_ensure_failures_total {failures}",
+        "# HELP splastic_classify_batch_requests_total POST /classify/batch calls",
+        "# TYPE splastic_classify_batch_requests_total counter",
+        f"splastic_classify_batch_requests_total {batch_reqs}",
+        "# HELP splastic_classify_batch_events_total Events in /classify/batch (metadata-miss path)",
+        "# TYPE splastic_classify_batch_events_total counter",
+        f"splastic_classify_batch_events_total {batch_events}",
+        "# HELP splastic_ensure_batch_requests_total POST /ensure/batch calls",
+        "# TYPE splastic_ensure_batch_requests_total counter",
+        f"splastic_ensure_batch_requests_total {ensure_reqs}",
+        "# HELP splastic_ensure_batch_streams_total Streams in /ensure/batch",
+        "# TYPE splastic_ensure_batch_streams_total counter",
+        f"splastic_ensure_batch_streams_total {ensure_streams}",
+        "# HELP splastic_classify_http_requests_total Classify HTTP requests by path",
+        "# TYPE splastic_classify_http_requests_total counter",
     ]
     for path, count in sorted(http_counts.items()):
-        lines.append(f'splash_classify_http_requests_total{{path="{path}"}} {count}')
+        lines.append(f'splastic_classify_http_requests_total{{path="{path}"}} {count}')
     lines.append("")
     return PlainTextResponse("\n".join(lines), media_type="text/plain; version=0.0.4")
 

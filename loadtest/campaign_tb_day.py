@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """TB/day load-test campaign: plan shards, validate unit capacity, project scale.
 
-Assumes Elastic Cloud ingest capacity is scaled with the Splash pipeline
+Assumes Elastic Cloud ingest capacity is scaled with the Splastic pipeline
 (queue not pegged due to ES). Locally we validate the per-stack floor and
 per-shard planned peak; full 5/10 TB fleets are projected linearly.
 

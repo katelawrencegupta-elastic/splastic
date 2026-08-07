@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Compare Splash offered events vs Elasticsearch indexed count; export lag.
+"""Compare Splastic offered events vs Elasticsearch indexed count; export lag.
 
-Exports Prometheus gauge splash_index_lag_seconds on :9103/metrics.
+Exports Prometheus gauge splastic_index_lag_seconds on :9103/metrics.
 
 Env:
   ELASTIC_HOST          required
@@ -120,15 +120,15 @@ class Handler(BaseHTTPRequestHandler):
             err = _last_error
         body = "\n".join(
             [
-                "# HELP splash_index_lag_seconds Estimated seconds of index lag",
-                "# TYPE splash_index_lag_seconds gauge",
-                f"splash_index_lag_seconds {lag:.3f}",
-                "# HELP splash_index_offered_eps Recent offered events/s from s2s",
-                "# TYPE splash_index_offered_eps gauge",
-                f"splash_index_offered_eps {offered:.3f}",
-                "# HELP splash_index_indexed_eps Recent ES _count delta events/s",
-                "# TYPE splash_index_indexed_eps gauge",
-                f"splash_index_indexed_eps {indexed:.3f}",
+                "# HELP splastic_index_lag_seconds Estimated seconds of index lag",
+                "# TYPE splastic_index_lag_seconds gauge",
+                f"splastic_index_lag_seconds {lag:.3f}",
+                "# HELP splastic_index_offered_eps Recent offered events/s from s2s",
+                "# TYPE splastic_index_offered_eps gauge",
+                f"splastic_index_offered_eps {offered:.3f}",
+                "# HELP splastic_index_indexed_eps Recent ES _count delta events/s",
+                "# TYPE splastic_index_indexed_eps gauge",
+                f"splastic_index_indexed_eps {indexed:.3f}",
                 f"# error {err}" if err else "# error none",
                 "",
             ]

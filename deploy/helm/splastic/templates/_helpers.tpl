@@ -1,8 +1,8 @@
-{{- define "splash.name" -}}
+{{- define "splastic.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "splash.fullname" -}}
+{{- define "splastic.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -15,24 +15,24 @@
 {{- end -}}
 {{- end -}}
 
-{{- define "splash.classifyUrl" -}}
+{{- define "splastic.classifyUrl" -}}
 {{- if .Values.pipeline.classifyUrl -}}
 {{- .Values.pipeline.classifyUrl -}}
 {{- else -}}
-{{- printf "http://%s-classify:%d" (include "splash.fullname" .) (int .Values.classify.service.port) -}}
+{{- printf "http://%s-classify:%d" (include "splastic.fullname" .) (int .Values.classify.service.port) -}}
 {{- end -}}
 {{- end -}}
 
-{{- define "splash.secretName" -}}
+{{- define "splastic.secretName" -}}
 {{- if .Values.existingSecret -}}
 {{- .Values.existingSecret -}}
 {{- else -}}
-{{- printf "%s-credentials" (include "splash.fullname" .) -}}
+{{- printf "%s-credentials" (include "splastic.fullname" .) -}}
 {{- end -}}
 {{- end -}}
 
-{{- define "splash.labels" -}}
-app.kubernetes.io/name: {{ include "splash.name" . }}
+{{- define "splastic.labels" -}}
+app.kubernetes.io/name: {{ include "splastic.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}

@@ -23,7 +23,7 @@ elastic:
 
 classify:
   replicaCount: 2
-  image: splash-classify:latest
+  image: splastic-classify:latest
   imagePullPolicy: IfNotPresent
   authToken: ""
   resources:
@@ -40,7 +40,7 @@ classify:
 pipeline:
   # Each replica is one writer pod (cooked + uncooked).
   replicaCount: 2
-  writerImage: splash-s2s-decode:latest
+  writerImage: splastic-s2s-decode:latest
   imagePullPolicy: IfNotPresent
   persistence:
     enabled: true
@@ -71,7 +71,7 @@ pipeline:
 
 indexLagProbe:
   enabled: true
-  image: splash-index-lag-probe:latest
+  image: splastic-index-lag-probe:latest
   port: 9103
   intervalSeconds: "15"
   s2sHealthUrls: ""

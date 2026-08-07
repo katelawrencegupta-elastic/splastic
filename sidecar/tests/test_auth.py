@@ -79,7 +79,7 @@ def test_health_unauthenticated_and_no_elastic_host(
 def test_metrics_unauthenticated(auth_client: TestClient) -> None:
     resp = auth_client.get("/metrics")
     assert resp.status_code == 200
-    assert "splash_classify_ready" in resp.text
+    assert "splastic_classify_ready" in resp.text
 
 
 def test_classify_requires_bearer(auth_client: TestClient) -> None:

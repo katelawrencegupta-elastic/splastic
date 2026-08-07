@@ -1,4 +1,4 @@
-# Splash Performance Analysis
+# Splastic Performance Analysis
 
 ## Architecture
 
@@ -16,7 +16,7 @@ Splunk cooked tcpout :39998
            first-seen stream → POST /ensure/batch
                          │
                          ▼
-              splash-classify :8080
+              splastic-classify :8080
               (index template + /ensure/batch)
                          │
                          ▼
@@ -54,7 +54,7 @@ WRITER_PROCESSES=4 python -m loadtest run -s S1 --eps 10000 --duration 120
 |---|------|--------|--------|
 | 1 | GB/s floor with S1 | High | Done — **0.008 GB/s/stack** |
 | 2 | Metadata hit rate | High ($/GB) | Rules synced writer ↔ sidecar |
-| 3 | Spill / bulk-fail alerting | Med | `splash_writer_indexed_fail_total` |
+| 3 | Spill / bulk-fail alerting | Med | `splastic_writer_indexed_fail_total` |
 
 ## Smoke checklist
 

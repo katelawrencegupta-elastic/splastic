@@ -1,4 +1,4 @@
-"""CLI: run Splash load-test scenarios."""
+"""CLI: run Splastic load-test scenarios."""
 
 from __future__ import annotations
 
@@ -336,7 +336,7 @@ async def async_main(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="loadtest", description="Splash load-test harness")
+    p = argparse.ArgumentParser(prog="loadtest", description="Splastic load-test harness")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     run = sub.add_parser("run", help="Run a named scenario")

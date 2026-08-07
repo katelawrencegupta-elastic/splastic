@@ -1,4 +1,4 @@
-# Splash load-test harness
+# Splastic load-test harness
 
 Synthetic cooked S2S (`:39998`) and uncooked TCP (`:39997`) generators with
 health/metrics polling and a JSON summary. Validates the ~5–15k eps capacity model.
@@ -14,7 +14,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Start Splash with loopback metrics ports:
+Start Splastic with loopback metrics ports:
 
 ```bash
 cd ..   # repo root

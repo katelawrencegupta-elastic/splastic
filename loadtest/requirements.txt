@@ -1,4 +1,4 @@
-# Splash load-test harness
+# Splastic load-test harness
 #
 # Install (from this directory):
 #   python3 -m venv .venv && source .venv/bin/activate

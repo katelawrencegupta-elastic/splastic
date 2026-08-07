@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "splash.fullname" . }}-classify
+  name: {{ include "splastic.fullname" . }}-classify
   labels:
-    {{- include "splash.labels" . | nindent 4 }}
+    {{- include "splastic.labels" . | nindent 4 }}
     app.kubernetes.io/component: classify
 spec:
   replicas: {{ .Values.classify.replicaCount }}
@@ -31,12 +31,12 @@ spec:
             - name: ELASTIC_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "splash.secretName" . }}
+                  name: {{ include "splastic.secretName" . }}
                   key: elastic-api-key
             - name: CLASSIFY_AUTH_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "splash.secretName" . }}
+                  name: {{ include "splastic.secretName" . }}
                   key: classify-auth-token
             - name: DATA_STREAM_NAMESPACE
               value: {{ .Values.elastic.namespace | quote }}
@@ -64,9 +64,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "splash.fullname" . }}-classify
+  name: {{ include "splastic.fullname" . }}-classify
   labels:
-    {{- include "splash.labels" . | nindent 4 }}
+    {{- include "splastic.labels" . | nindent 4 }}
     app.kubernetes.io/component: classify
 spec:
   type: {{ .Values.classify.service.type }}

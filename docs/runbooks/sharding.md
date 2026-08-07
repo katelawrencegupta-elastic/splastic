@@ -1,4 +1,4 @@
-# Sharding and VIP — Splash multi-writer strategy
+# Sharding and VIP — Splastic multi-writer strategy
 
 Horizontal scale unit: **one writer pod = one shard**. Shared classify stays
 small; Elasticsearch is assumed scaled so `_bulk` does not peg the writer queue.
@@ -51,32 +51,32 @@ Do not plan above ~0.015 GB/s per shard without a fresh ramp test.
 
 ### Measuring peak vs average
 
-Prometheus recording rules ([`deploy/alerts/splash-recording.yaml`](../../deploy/alerts/splash-recording.yaml)):
+Prometheus recording rules ([`deploy/alerts/splastic-recording.yaml`](../../deploy/alerts/splastic-recording.yaml)):
 
 | Series | Meaning |
 |--------|---------|
-| `splash:ingest_gbps:5m` | Ingest GB/s from s2s `bytes_consumed` |
-| `splash:ingest_eps:1m` | Events/s from s2s `events_emitted` |
-| `splash:peak_to_avg:1d` | max(5m GB/s over 1d) / avg(5m GB/s over 1d) |
-| `splash_s2s_avg_event_bytes` | Lifetime bytes/event (size skew signal) |
+| `splastic:ingest_gbps:5m` | Ingest GB/s from s2s `bytes_consumed` |
+| `splastic:ingest_eps:1m` | Events/s from s2s `events_emitted` |
+| `splastic:peak_to_avg:1d` | max(5m GB/s over 1d) / avg(5m GB/s over 1d) |
+| `splastic_s2s_avg_event_bytes` | Lifetime bytes/event (size skew signal) |
 
 **Workflow:**
 
-1. After ≥24h of production, query `splash:peak_to_avg:1d` and
-   `max_over_time(splash:ingest_gbps:5m[1d])`.
+1. After ≥24h of production, query `splastic:peak_to_avg:1d` and
+   `max_over_time(splastic:ingest_gbps:5m[1d])`.
 2. Plug peak into the shard formula above.
 3. Cross-check cloud NLB/VIP **ProcessedBytes** on the cooked listener.
-4. If `splash_s2s_avg_event_bytes` is far from ~1536, re-run `S1_512` /
+4. If `splastic_s2s_avg_event_bytes` is far from ~1536, re-run `S1_512` /
    `S1_1536` / `S1_4096` before locking shard count.
-5. Alert `SplashPeakToAvgHigh` fires when peak/avg &gt; 3.
+5. Alert `SplasticPeakToAvgHigh` fires when peak/avg &gt; 3.
 
-Writer metrics include a `shard` label when `SPLASH_SHARD_ID` is set — use
-`sum by (shard) (splash_s2s_upstream_queue)` to spot skew.
+Writer metrics include a `shard` label when `SPLASTIC_SHARD_ID` is set — use
+`sum by (shard) (splastic_s2s_upstream_queue)` to spot skew.
 
 ### Event size
 
 Capacity assumes ~1.5 KB events. Smaller events raise CPU per GB. Measure P50
-with `splash_s2s_avg_event_bytes` (or Splunk `_raw` length) and re-measure if
+with `splastic_s2s_avg_event_bytes` (or Splunk `_raw` length) and re-measure if
 ≠ ~1.5 KB.
 
 ## Kubernetes (production)
@@ -91,8 +91,8 @@ Chart: [`deploy/helm/splastic`](../../deploy/helm/splastic).
   health-check `GET /health` on 8081 (or TCP).
 
 ```bash
-helm upgrade --install splash ./deploy/helm/splastic \
-  --namespace splash --create-namespace \
+helm upgrade --install splastic ./deploy/helm/splastic \
+  --namespace splastic --create-namespace \
   --set elastic.host="$ELASTIC_HOST" \
   --set elastic.apiKey="$ELASTIC_API_KEY" \
   --set classify.authToken="$CLASSIFY_AUTH_TOKEN" \
@@ -139,7 +139,7 @@ No session stickiness required for capacity.
 ### HAProxy example
 
 ```text
-listen splash_cooked
+listen splastic_cooked
   bind *:39998
   mode tcp
   balance roundrobin
@@ -147,7 +147,7 @@ listen splash_cooked
   server s0 10.0.1.10:39998 check
   server s1 10.0.1.11:39998 check
 
-listen splash_uncooked
+listen splastic_uncooked
   bind *:39997
   mode tcp
   balance roundrobin
@@ -158,9 +158,9 @@ listen splash_uncooked
 
 ### Cloud NLB
 
-TCP Network Load Balancer → target group of Splash nodes on 39998 / 39997.
+TCP Network Load Balancer → target group of Splastic nodes on 39998 / 39997.
 Prefer HTTP health on 8081 when supported. Use NLB **ProcessedBytes** as an
-independent peak/avg check against `splash:ingest_gbps:*`.
+independent peak/avg check against `splastic:ingest_gbps:*`.
 
 ### Splunk
 
@@ -172,8 +172,8 @@ autoLB so reconnects redistribute after scale-out. See
 
 - **Ensure cache is per-writer.** Full-fleet restart causes a short parallel
   ensure burst; `/ensure/batch` is idempotent. Prefer rolling updates.
-- **Spill** is per-pod PVC — alert on `splash_writer_spill_writes_total` and
-  `splash_writer_indexed_fail_total` (see [spill.md](spill.md)).
+- **Spill** is per-pod PVC — alert on `splastic_writer_spill_writes_total` and
+  `splastic_writer_indexed_fail_total` (see [spill.md](spill.md)).
 - **Skew:** long TCP sessions can load one shard harder. If sustained
   `bytes_consumed` skew &gt; ~2×, force forwarder reconnects or drain the hot
   backend from the VIP briefly.
@@ -204,8 +204,8 @@ multi-node soak.
 
 | Signal | Use |
 |--------|-----|
-| `splash_s2s_upstream_queue` (per `shard`) | Saturation / skew |
-| `splash:ingest_gbps:5m` | Capacity / peak |
-| `splash_writer_indexed_fail_total` / spill | Bulk / ES problems |
-| `splash_writer_ensure_calls_total` | Cold-start / rule miss |
+| `splastic_s2s_upstream_queue` (per `shard`) | Saturation / skew |
+| `splastic:ingest_gbps:5m` | Capacity / peak |
+| `splastic_writer_indexed_fail_total` / spill | Bulk / ES problems |
+| `splastic_writer_ensure_calls_total` | Cold-start / rule miss |
 | NLB ProcessedBytes | Independent peak check |

@@ -1,4 +1,4 @@
-"""Splash load-test harness."""
+"""Splastic load-test harness."""
 
 from __future__ import annotations
 

@@ -33,7 +33,7 @@ def _api_key_header(api_key: str) -> str:
         return base64.b64encode(raw.encode("utf-8")).decode("ascii")
     return raw
 
-TEMPLATE_NAME = "splash-logs"
+TEMPLATE_NAME = "splastic-logs"
 TEMPLATE_PATTERNS = ["logs-*-*"]
 
 # Composable index template with data_stream mode.

@@ -1,4 +1,4 @@
-# Writer spill runbook — Splash
+# Writer spill runbook — Splastic
 
 Failed Elasticsearch `_bulk` documents are written to an on-disk spill file so
 they are not silently dropped during transient outages. There is no Logstash DLQ.
@@ -28,19 +28,19 @@ docker compose exec s2s-decode ls -la /var/lib/splastic/spill
 docker compose exec s2s-decode du -sh /var/lib/splastic/spill
 
 # Shard project
-docker compose -p splash0 exec s2s-decode du -sh /var/lib/splastic/spill
+docker compose -p splastic0 exec s2s-decode du -sh /var/lib/splastic/spill
 ```
 
-Prometheus: `splash_writer_spill_writes_total`, `splash_writer_indexed_fail_total`.
+Prometheus: `splastic_writer_spill_writes_total`, `splastic_writer_indexed_fail_total`.
 
 ## How to detect growth
 
-1. Alert `SplashWriterBulkFailures` — `indexed_fail` increased over 15m (see
+1. Alert `SplasticWriterBulkFailures` — `indexed_fail` increased over 15m (see
    [alerting.md](alerting.md)).
-2. Rising `rate(splash_writer_spill_writes_total[5m])`.
+2. Rising `rate(splastic_writer_spill_writes_total[5m])`.
 3. Manual: `du -sh` / file size on the spill path.
 4. Correlate with Elastic Cloud ingest pressure, mapping errors, and writer
-   queue peg (`splash_s2s_upstream_queue`).
+   queue peg (`splastic_s2s_upstream_queue`).
 
 ## When to replay vs drop
 
@@ -74,6 +74,6 @@ dropped.
 
 ## After recovery
 
-- Confirm `splash_writer_spill_writes_total` and `indexed_fail` are flat.
-- Confirm `splash_s2s_upstream_queue` is not pegged.
+- Confirm `splastic_writer_spill_writes_total` and `indexed_fail` are flat.
+- Confirm `splastic_s2s_upstream_queue` is not pegged.
 - Note root cause in the incident log (ES capacity, mapping, credentials).

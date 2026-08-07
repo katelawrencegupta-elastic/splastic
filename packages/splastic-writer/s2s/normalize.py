@@ -30,7 +30,7 @@ def to_logstash_event(
     *,
     extra_tags: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Map S2S fields to the Splash writer event contract (see docs/contracts)."""
+    """Map S2S fields to the Splastic writer event contract (see docs/contracts)."""
     message = fields.get("_raw") or fields.get("message") or ""
     event: dict[str, Any] = {
         "host": fields.get("host", ""),

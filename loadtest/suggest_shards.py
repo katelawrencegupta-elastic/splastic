@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Suggest Splash pipeline shard count from daily volume + event size + peak factor.
+"""Suggest Splastic pipeline shard count from daily volume + event size + peak factor.
 
 Usage:
   python suggest_shards.py --tb-day 1 --event-bytes 1536 --peak-factor 2

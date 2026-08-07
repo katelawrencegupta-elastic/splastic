@@ -1,4 +1,4 @@
-"""Ensure data streams via splash-classify /ensure/batch."""
+"""Ensure data streams via splastic-classify /ensure/batch."""
 
 from __future__ import annotations
 
