@@ -57,7 +57,7 @@ def fields_for(*, hot: bool, seq: int, event_bytes: int) -> dict[str, str]:
 
 
 def uncooked_line(*, hot: bool, seq: int, event_bytes: int) -> bytes:
-    """JSON line for Logstash json filter on :39997 (when message looks like JSON)."""
+    """JSON line for uncooked TCP :39997 (when message looks like JSON)."""
     f = fields_for(hot=hot, seq=seq, event_bytes=event_bytes)
     doc: dict[str, Any] = {
         "host": f["host"],

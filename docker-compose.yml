@@ -20,7 +20,7 @@ services:
       retries: 6
       start_period: 10s
 
-  # Cooked S2S :39998 + uncooked TCP :39997 → classify → ES _bulk
+  # Cooked S2S :39998 + uncooked TCP :39997 → in-process classify → ES _bulk
   s2s-decode:
     build: ./packages/splastic-writer
     container_name: splash-s2s-decode

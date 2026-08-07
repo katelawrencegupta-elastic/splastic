@@ -1,4 +1,4 @@
-# Capacity: ~0.008 GB/s/writer stack (S1 @ 5k eps, post-Logstash).
+# Capacity: ~0.008 GB/s/writer stack (S1 @ 5k eps).
 # shards ≈ ceil(ceil(peak_GBps / floor) * 1.25)
 # Set pipeline.replicaCount = shards; classify.replicaCount stays 2–3 (shared).
 # Packing: 1 writer pod / 8-vCPU node. See docs/runbooks/sharding.md.
@@ -68,11 +68,6 @@ pipeline:
   maxConnections: "256"
   maxSessionBufferBytes: "33554432"
   classifyUrl: ""
-
-dlqExporter:
-  enabled: false
-  image: splash-dlq-exporter:latest
-  port: 9102
 
 indexLagProbe:
   enabled: true

@@ -5,8 +5,10 @@ health/metrics polling and a JSON summary. Validates the ~5–15k eps capacity m
 
 ## Setup
 
+From the repo root:
+
 ```bash
-cd splash/loadtest
+cd loadtest
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -15,8 +17,7 @@ pip install -r requirements.txt
 Start Splash with loopback metrics ports:
 
 ```bash
-cd ..
-# Use an isolated namespace for the run
+cd ..   # repo root
 export DATA_STREAM_NAMESPACE=loadtest
 docker compose -f docker-compose.yml -f docker-compose.loadtest.yml up --build -d
 ```
@@ -69,7 +70,7 @@ python -m loadtest run -s S1_4096 --eps 5000 --duration 120
 
 Capacity is primarily **GB/s**-bounded (~0.008/stack). Smaller events raise CPU per
 GB; compare steady GB/s and queue peg across the three runs before locking shard
-count (see `docs/runbooks/sharding.md`).
+count (see [`docs/runbooks/sharding.md`](../docs/runbooks/sharding.md)).
 
 Suggest shards from daily volume:
 

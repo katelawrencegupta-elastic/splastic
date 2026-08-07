@@ -83,8 +83,8 @@ def _auth_header(api_key: str) -> str:
     """Build Authorization for Elastic Cloud API keys.
 
     Accepts ``id:key`` (base64-encoded), already-base64 material, or a full
-    ``ApiKey …`` header value. Logstash's ``api_key =>`` accepted ``id:key``
-    and encoded it; raw ``ApiKey id:key`` is rejected (``:`` is not base64).
+    ``ApiKey …`` header value. Raw ``ApiKey id:key`` is rejected (``:`` is
+    not base64); pass ``id:key`` and this helper encodes it.
     """
     import base64
 

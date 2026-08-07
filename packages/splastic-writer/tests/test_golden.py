@@ -1,11 +1,11 @@
-"""Shared golden fixtures for the production Python s2s-decode path.
+"""Shared golden fixtures for the production Python writer decode path.
 
-Protocol / framing changes require updating files under ``splash/testdata/s2s/``
+Protocol / framing changes require updating files under ``testdata/s2s/``
 and re-running:
 
-  cd packages/s2s-decode && PYTHONPATH=. pytest tests/test_golden.py
+  cd packages/splastic-writer && PYTHONPATH=. pytest tests/test_golden.py
 
-Cooked ingest is Python-only. The NDJSON handoff to Logstash is documented in
+Cooked ingest is Python-only. Normalized event fields are documented in
 ``docs/contracts/s2s-ndjson.md``.
 """
 

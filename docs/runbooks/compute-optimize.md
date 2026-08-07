@@ -2,10 +2,10 @@
 
 Raise GB/s per vCPU-dollar with gated phases.
 
-Post-Logstash: the saturator is the Python writer (bulk queue) and/or ES.
-Re-baseline Phase 0 with S1 before changing Helm CPU limits.
+The saturator is the Python writer (bulk queue) and/or Elasticsearch. Re-baseline
+Phase 0 with S1 before changing Helm CPU limits.
 
-## Phase 0 — Baseline (re-lock after Logstash removal)
+## Phase 0 — Baseline
 
 ```bash
 ./scripts/compute-optimize-baseline.sh
@@ -15,13 +15,16 @@ python -m loadtest run -s S1 --eps 5000 --duration 120
 | Observation | Next |
 |-------------|------|
 | Queue pegs, classify idle | Scale writer CPU or shards; check ES |
-| Classify/ensure HTTP high | Phase 1 (metadata hit rate) |
+| Cold-path / ensure high (`splash:miss_fraction:1m`) | Phase 1 (metadata hit rate) |
 | Otherwise | Horizontal shards (Phase 3) |
 
 ## Phase 1 — Metadata hit rate
 
 Keep `miss_fraction < 0.1` via [`sidecar/classify_rules.json`](../../sidecar/classify_rules.json)
 (synced to `packages/splastic-writer/writer/classify_rules.json`).
+
+Miss = writer `classify_message_hit` + `classify_generic` (see recording rules in
+[`deploy/alerts/splash-recording.yaml`](../../deploy/alerts/splash-recording.yaml)).
 
 ## Phase 2 — Multi-process writer (per-pod GB/s)
 

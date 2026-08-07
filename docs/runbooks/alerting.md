@@ -4,9 +4,8 @@ Metrics sources:
 
 | Component | Path | Port |
 |-----------|------|------|
-| s2s-decode | `/metrics` | 8081 (or shard offset) |
+| s2s-decode / writer | `/metrics` | 8081 (or shard offset) |
 | classify | `/metrics` | 8080 |
-| dlq_exporter | `/metrics` | 9102 |
 | index_lag_probe | `/metrics` | 9103 |
 
 Rules: [deploy/alerts/splash-alerts.yaml](../../deploy/alerts/splash-alerts.yaml),
@@ -14,13 +13,13 @@ recording: [deploy/alerts/splash-recording.yaml](../../deploy/alerts/splash-reco
 
 ## SplashS2SQueuePegged
 
-**Meaning:** s2s upstream queue &gt; 9000 for 2m (capacity 10000).
+**Meaning:** writer upstream queue &gt; 9000 for 2m (capacity 10000).
 
 **Actions:**
-1. Check Logstash CPU/heap and ES bulk latency.
+1. Check ES bulk latency and writer CPU (`WRITER_PROCESSES`, pod limits).
 2. Scale out another shard (see [sharding.md](sharding.md)).
-3. Confirm classify is not in cold-path storm (`splash:miss_fraction:1m`).
-4. If a single poison stream, check DLQ.
+3. Confirm classify is not in a cold-path storm (`splash:miss_fraction:1m`).
+4. If failures are accumulating, check spill ([spill.md](spill.md)).
 
 ## SplashClassifyNotReady
 
@@ -31,11 +30,11 @@ recording: [deploy/alerts/splash-recording.yaml](../../deploy/alerts/splash-reco
 2. Verify ES credentials, network, and that classify can PUT the index template.
 3. Check classify logs for template ensure errors; restart after ES is reachable.
 
-## SplashDLQGrowing
+## SplashWriterBulkFailures
 
-**Meaning:** DLQ bytes increased over a 15m window.
+**Meaning:** `splash_writer_indexed_fail_total` increased over a 15m window.
 
-**Actions:** Follow [dlq.md](dlq.md) — identify cause, fix ES/mappings, replay or drop.
+**Actions:** Follow [spill.md](spill.md) — identify cause, fix ES/mappings, replay or drop spill.
 
 ## SplashIndexLagHigh
 
@@ -43,8 +42,8 @@ recording: [deploy/alerts/splash-recording.yaml](../../deploy/alerts/splash-reco
 
 **Actions:**
 1. Confirm probe targets and ES `_count` access.
-2. Check Logstash bulk latency / queue peg / ES ingest pressure.
-3. Temporarily lower offered eps or scale pipeline replicas.
+2. Check writer bulk latency / queue peg / ES ingest pressure.
+3. Temporarily lower offered eps or scale writer shards.
 
 ## SplashPeakToAvgHigh
 
@@ -60,12 +59,17 @@ recording: [deploy/alerts/splash-recording.yaml](../../deploy/alerts/splash-reco
 
 **Meaning:** metadata-miss path dominates — `miss_fraction` &gt; 0.25 or miss eps &gt; 2k for 5m while ingest is non-trivial.
 
+Recording rules derive miss from writer counters:
+`splash_writer_classify_message_hit_total` + `splash_writer_classify_generic_total`
+(events that did not match metadata `sourcetype`/`source` rules).
+
 **Actions:**
-1. Inspect `rate(splash_classify_batch_events_total[5m])` vs `splash:ingest_eps:1m`.
-2. Expand [`sidecar/classify_rules.json`](../../sidecar/classify_rules.json) for missing sourcetype/source patterns.
-3. Check Splunk UF/HF that `sourcetype` / `source` are populated (empty → cold path).
-4. Temporarily scale classify replicas for HA under storm; fix rules before relying on scale.
-5. Re-run loadtest `S2` (cold) / `S3` (mixed) after rule changes.
+1. Inspect `splash:classify_miss_eps:1m` vs `splash:ingest_eps:1m`, and
+   `rate(splash_writer_classify_meta_hit_total[5m])`.
+2. Expand [`sidecar/classify_rules.json`](../../sidecar/classify_rules.json) (keep
+   [`packages/splastic-writer/writer/classify_rules.json`](../../packages/splastic-writer/writer/classify_rules.json) in sync).
+3. Check Splunk UF/HF that `sourcetype` / `source` are populated (empty → message path).
+4. Re-run loadtest `S2` (cold) / `S3` (mixed) after rule changes.
 
 ## Scrape + remote_write
 
@@ -75,7 +79,8 @@ Config: [`deploy/prometheus/prometheus.yml`](../../deploy/prometheus/prometheus.
 docker compose --profile metrics up -d --build
 ```
 
-Prometheus scrapes `s2s-decode:8081`, `classify:8080`, `dlq-exporter:9102`, and `index-lag-probe:9103`, then **remote_writes** to:
+Prometheus scrapes `s2s-decode:8081`, `classify:8080`, and `index-lag-probe:9103`,
+then **remote_writes** to:
 
 `${ELASTIC_HOST}/_prometheus/api/v1/write`
 
@@ -83,7 +88,7 @@ Prometheus scrapes `s2s-decode:8081`, `classify:8080`, `dlq-exporter:9102`, and 
 
 Auth: prefer `PROMETHEUS_ELASTIC_API_KEY` with **metrics-*** privileges; falls back to `ELASTIC_API_KEY` (logs-only keys often get 403 on remote_write). Whitespace-only host/URL vars fail startup.
 
-Multi-shard: `SPLASH_SHARD_ID` becomes `external_labels.splash_shard`; host ports offset via `run-shard.sh` (`9090`/`9102` + stride). UI on loopback `:9090` (shard 0).
+Multi-shard: `SPLASH_SHARD_ID` becomes `external_labels.splash_shard`; host ports offset via `run-shard.sh`. UI on loopback `:9090` (shard 0).
 
 ```yaml
 scrape_configs:
@@ -93,9 +98,6 @@ scrape_configs:
   - job_name: splash-classify
     static_configs:
       - targets: ["classify:8080"]
-  - job_name: splash-dlq
-    static_configs:
-      - targets: ["dlq-exporter:9102"]
   - job_name: splash-index-lag
     static_configs:
       - targets: ["index-lag-probe:9103"]

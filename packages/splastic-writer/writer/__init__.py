@@ -1,4 +1,4 @@
-"""In-process classify + Elasticsearch bulk path (Logstash replacement)."""
+"""In-process classify + Elasticsearch bulk path."""
 
 from __future__ import annotations
 

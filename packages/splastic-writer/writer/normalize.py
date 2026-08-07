@@ -41,7 +41,7 @@ def _coerce_timestamp(value: Any) -> str | None:
 
 
 def normalize_event(raw: dict[str, Any]) -> dict[str, Any]:
-    """Port of Logstash filter normalize for cooked NDJSON / uncooked lines."""
+    """Normalize cooked / uncooked event dicts for classify + bulk."""
     event = dict(raw)
 
     message = event.get("message")

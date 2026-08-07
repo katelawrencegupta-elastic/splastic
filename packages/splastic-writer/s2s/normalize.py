@@ -1,4 +1,4 @@
-"""Normalize S2S fields to Logstash / classify schema."""
+"""Normalize S2S fields to the writer / classify event schema."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def to_logstash_event(
     *,
     extra_tags: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Map S2S fields to the splash Logstash/classify event contract."""
+    """Map S2S fields to the Splash writer event contract (see docs/contracts)."""
     message = fields.get("_raw") or fields.get("message") or ""
     event: dict[str, Any] = {
         "host": fields.get("host", ""),

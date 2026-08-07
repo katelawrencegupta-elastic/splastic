@@ -17,4 +17,6 @@ are normalized to a dict before classify + Elasticsearch `_bulk`.
 
 Bulk `create` action uses `_index` = `logs-{dataset}-{namespace}` (no ingest pipeline).
 
-There is no intermediate NDJSON hop to Logstash.
+Classification runs **in-process** in the writer. The classify sidecar is used for
+index-template readiness and first-seen `POST /ensure/batch` only — there is no
+intermediate NDJSON hop to another pipeline.

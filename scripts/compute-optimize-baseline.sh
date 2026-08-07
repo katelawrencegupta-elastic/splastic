@@ -62,8 +62,8 @@ fi
 
 cat <<'EOF'
 Interpret:
-  - upstream_queue near capacity → Logstash/ES behind (Phase 2 / shard).
-  - classify_batch_events rising on hot soak → miss path tax (Phase 1).
+  - upstream_queue near capacity → writer/ES behind (Phase 2 / shard).
+  - high splash:miss_fraction:1m on hot soak → cold classify path (Phase 1).
   - Prefer Prometheus: splash:ingest_gbps:5m, splash:miss_fraction:1m,
     splash:hit_fraction:1m (see deploy/alerts/splash-recording.yaml).
   - Planning floor remains 0.008 GB/s/stack until Phase 2 vertical probe wins.

@@ -1,6 +1,6 @@
 1. Splash is installed as release {{ .Release.Name }} in namespace {{ .Release.Namespace }}.
 
-2. Multi-writer capacity (post-Logstash):
+2. Multi-writer capacity:
    - ~0.008 GB/s (~5k eps @ 1536 B) per pipeline replica
    - pipeline.replicaCount={{ .Values.pipeline.replicaCount }}  ← set to suggested shards
    - classify.replicaCount={{ .Values.classify.replicaCount }}  ← keep small (2–3); shared ensure only
@@ -30,4 +30,5 @@
    - lag:      http://{{ include "splash.fullname" . }}-index-lag:{{ .Values.indexLagProbe.port }}/metrics (if enabled)
 
 6. Alerts: deploy/alerts/splash-alerts.yaml + splash-recording.yaml
-   Runbooks: docs/runbooks/sharding.md , docs/runbooks/compute-optimize.md
+   Runbooks: docs/runbooks/sharding.md , docs/runbooks/compute-optimize.md ,
+             docs/runbooks/alerting.md , docs/runbooks/spill.md

@@ -61,3 +61,6 @@ rolling updates use `maxUnavailable: 1` to limit ensure-cache flush storms.
 Writer metrics are labeled `shard="<pod-name>"` via `SPLASH_SHARD_ID` /
 `POD_NAME`. Default `writerProcesses: "4"` runs SO_REUSEPORT workers inside
 each pod (`WRITER_PROCESSES`); set to `"1"` for single-process debug.
+
+Failed bulk docs land on the per-pod spill PVC (`WRITER_SPILL_DIR`); see
+[`docs/runbooks/spill.md`](../../../docs/runbooks/spill.md).

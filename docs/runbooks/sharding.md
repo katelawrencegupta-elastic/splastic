@@ -173,7 +173,7 @@ autoLB so reconnects redistribute after scale-out. See
 - **Ensure cache is per-writer.** Full-fleet restart causes a short parallel
   ensure burst; `/ensure/batch` is idempotent. Prefer rolling updates.
 - **Spill** is per-pod PVC — alert on `splash_writer_spill_writes_total` and
-  `splash_writer_indexed_fail_total`, not a shared DLQ.
+  `splash_writer_indexed_fail_total` (see [spill.md](spill.md)).
 - **Skew:** long TCP sessions can load one shard harder. If sustained
   `bytes_consumed` skew &gt; ~2×, force forwarder reconnects or drain the hot
   backend from the VIP briefly.

@@ -1,4 +1,4 @@
-"""Uncooked TCP load generator → Logstash :39997."""
+"""Uncooked TCP load generator → Splash writer :39997."""
 
 from __future__ import annotations
 

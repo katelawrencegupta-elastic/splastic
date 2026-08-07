@@ -84,5 +84,5 @@ groups:
           summary: "Splash classify metadata-miss storm"
           description: >-
             miss_fraction or miss_eps elevated on {{ $labels.instance }}.
-            Expand classify_rules.json, check UF sourcetype/source, or scale classify.
+            Expand classify_rules.json and check UF sourcetype/source.
             See docs/runbooks/alerting.md.

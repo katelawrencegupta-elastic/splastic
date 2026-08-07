@@ -27,8 +27,14 @@ groups:
             clamp_min(avg_over_time(splash:ingest_gbps:5m[1d]), 1e-12)
           )
 
+      # Cold path = message-pattern + generic fallback (in-writer classify).
       - record: splash:classify_miss_eps:1m
-        expr: sum(rate(splash_classify_batch_events_total[1m]))
+        expr: >-
+          (
+            sum(rate(splash_writer_classify_message_hit_total[1m]))
+            +
+            sum(rate(splash_writer_classify_generic_total[1m]))
+          )
 
       - record: splash:miss_fraction:1m
         expr: >-
